@@ -3,8 +3,8 @@ library(stringr)
 library(lubridate)
 library(scales)
 
-path_out = "fiftyshadesofgrey/io/out/"
-path_in = "fiftyshadesofgrey/io/in/"
+path_in = "fiftyshadesofgrey/data/in/"
+path_out = "fiftyshadesofgrey/data/out/"
 
 # Set the working directory. Change this to the location of the example on the computer. Note that "/" is always used in R, also in Windows
 setwd("fiftyshadesofgrey/src/")
@@ -116,36 +116,8 @@ for (file in list_file_names){
   X$residuals <- X$yTi - tmp$output$pred$yTi  
   ts <- X$residuals
   # Cumulated periodogram code sourced from the tseries v0.1-2 package
-  # source: https://www.rdocumentation.org/packages/tseries/versions/0.1-2/topics/cumulative.periodogram
-  taper = 0.1
-  x <- as.vector(ts)
-  x <- x[!is.na(x)]
-  x <- spec.taper(scale(x, TRUE, FALSE), p=taper)
-  y <- Mod(fft(x))^2/length(x)
-  y[1L] <- 0
-  n <- length(x)
-  x <- (0:(n/2))*frequency(ts)/n
-  if(length(x)%%2==0) {
-  n <- length(x)-1
-  y <- y[1L:n]
-  x <- x[1L:n]
-  } else y <- y[seq_along(x)]
-  xm <- frequency(ts)/2
-  mp <- length(x)-1
-  crit <- 1.358/(sqrt(mp)+0.12+0.11/sqrt(mp))
-  oldpty <- par(pty ="s")
-  on.exit(par(oldpty))
-  # CP (cumulated periodogram) calculation
-  CP <- cumsum(y)/sum(y)
-  # BE (boundary excess) calculation
-  top_b <- x*2 + crit
-  bot_b <- x*2 - crit
-  BE_top <- pmax(0, CP-top_b)
-  BE_bot <- pmax(0, bot_b-CP)
-  BE <- pmax(BE_top, BE_bot)
-  nCPBE <- cumsum(BE)/length(BE)
-  # nCPBES
-  nCPBES <- tail(nCPBE, n=1)
+  nCPBES <- nCPBE_calc(ts)
+  nCPBES <- tail(nCPBES, n=1)
   df_res[[counts, 4]] <- nCPBES
   
   # Saving Model Iteration

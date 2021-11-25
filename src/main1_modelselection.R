@@ -4,8 +4,8 @@ library(lubridate)
 library(foreach)
 library(doParallel)
 
-path_out = "fiftyshadesofgrey/io/out/"
-path_in = "fiftyshadesofgrey/io/in/"
+path_out = "fiftyshadesofgrey/data/out/"
+path_in = "fiftyshadesofgrey/data/in/"
 
 ## Set the working directory. Change this to the location of the example on the computer. Note that "/" is always used in R, also in Windows
 setwd("fiftyshadesofgrey/src/")
