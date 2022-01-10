@@ -85,8 +85,15 @@ nCPBE_calc <- function(ts, all=FALSE){
     nCPBES <- cumsum(CPBE)/length(CPBE)
 
     if(all==TRUE){
-      return(nCPBE, CPBE, CP, x, xm, crit)
+      myEnv <- new.env()
+      myEnv$nCPBES <- nCPBES
+      myEnv$CPBE <- CPBE
+      myEnv$CP <- CP
+      myEnv$x <- x
+      myEnv$xm <- xm
+      myEnv$crit <- crit
+      return(myEnv)
     } else {
-      return(nCPBE)
+      return(nCPBES)
     }
 }

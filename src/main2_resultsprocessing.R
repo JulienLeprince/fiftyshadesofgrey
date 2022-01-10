@@ -3,15 +3,20 @@ library(stringr)
 library(lubridate)
 library(scales)
 
-path_in = "fiftyshadesofgrey/data/in/"
-path_out = "fiftyshadesofgrey/data/out/"
+# Define paths
+root_directory = "C:/Users/20190285/Documents/GitHub/fiftyshadesofgrey"
+path_out = paste(root_directory, "/data/out/", sep="")
+path_in = paste(root_directory, "/data/in/", sep="")
 
 # Set the working directory. Change this to the location of the example on the computer. Note that "/" is always used in R, also in Windows
-setwd("fiftyshadesofgrey/src/")
+setwd(paste(root_directory, "/src", sep=""))
+# Source the scripts with functions in the "src" folder. Just a neat way of arranging helping functions in R
+source("allmodels.R")
+source("utils.R")
 
 # Get all input files names
 setwd(path_out)
-list_file_names <- list.files(pattern = "*_finalfit.rda")
+list_file_names <- list.files(pattern = "*_fit.rda")
 
 ## ------------------------------------------------- Model selection post-processing -------------------------------------------------
 # Saving dataframe initialization
@@ -34,6 +39,9 @@ colnames(df_res) <- col_names
 # Best path
 df_paths <- data.frame(matrix(ncol = length(col_names2), nrow = 0))
 colnames(df_paths) <- col_names2
+# Best nCPBES
+df_nCPBES <- data.frame(matrix(ncol = length(col_names2), nrow = 0))
+colnames(df_nCPBES) <- col_names2
 # Estimated coefficient p-values, for significance evaluation
 coef_pvals <- c("Ti0_p" , "Tm0_p" , "Te0_p" , "Th0_p" , "Ts0_p" ,
                 "Ci_p" , "Cm_p" , "Ce_p" , "Ch_p" , "Cs_p" ,
@@ -97,28 +105,13 @@ for (file in list_file_names){
   for (i in 1:length(best_fit$best_path)){
     df_paths[[counts, i+1]] <- best_fit$best_path[i]
   }
-  
+  # Save model nCPBES
+  df_nCPBES[[counts, 1]] <- uuid_filtering
+  for (i in 1:length(best_fit$nCPBES)){
+    df_nCPBES[[counts, i+1]] <- best_fit$nCPBES[i]
+  }
   ### Save normalized Cumulated Periodogram Boundary Excess Sum
-  # Loading data associated with results model
-  df <- read.csv(paste(path_in,"blg_",uuid_filtering,".csv",sep=""),sep=";",header=TRUE)
-  # Convert to datetime
-  df$timedate <- ymd_hms(df$t)
-  ## df$t is now hours since start of the experiment. Create a column in the POSIXct format for plotting etc.
-  df$t <- seq(0, length(df$t)-1, by=1) / 4  # dt = 15 minutes
-  # Define input X
-  X <- df[c("t", "Ps", "Ta", "Thm", "yTi", "timedate")]
-  # Removing NA values
-  X = X[complete.cases(X), ]
-  # Cumulated periodogram
-  # Calculate the one-step predictions of the state (i.e. the residuals)
-  tmp <- predict(best_fit)[[1]]
-  # Calculate the residuals and put them with the data in a data.frame X
-  X$residuals <- X$yTi - tmp$output$pred$yTi  
-  ts <- X$residuals
-  # Cumulated periodogram code sourced from the tseries v0.1-2 package
-  nCPBES <- nCPBE_calc(ts)
-  nCPBES <- tail(nCPBES, n=1)
-  df_res[[counts, 4]] <- nCPBES
+  df_res[[counts, 4]] <- tail(best_fit$nCPBES, n=1)
   
   # Saving Model Iteration
   df_res[[counts, 5]] <- length(best_fit$best_path)
@@ -133,8 +126,8 @@ for (file in list_file_names){
   
 }
 
-
 # Save dataframe as csv file/ spark table
-write.csv(df_res, paste(path_res,'all_greybox_fits.csv', sep=""), row.names = TRUE)
-write.csv(df_paths, paste(path_res,'all_greybox_paths.csv', sep=""), row.names = TRUE)
-write.csv(list_badoutputs, paste(path_res,'list_badoutputs.csv', sep=""))
+write.csv(df_res, paste(path_out,'all_final_fits.csv', sep=""), row.names = TRUE)
+write.csv(df_paths, paste(path_out,'all_model_paths.csv', sep=""), row.names = TRUE)
+write.csv(df_nCPBES, paste(path_out,'all_nCPBES.csv', sep=""), row.names = TRUE)
+#write.csv(list_badoutputs, paste(path_out,'list_badoutputs.csv', sep=""))

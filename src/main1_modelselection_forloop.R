@@ -1,18 +1,27 @@
-library(cstmr)
+library(knitr)
+## Init by deleting all variables and functions
+rm(list=ls())
+## Set the working directory. Change this to the location of the root file on the computer. Note that "/" is always used in R, also in Windows
+root_directory = "C:/Users/20190285/Documents/GitHub/fiftyshadesofgrey"
+setwd(paste(root_directory, "/src", sep=""))
+# Install CSTM-R
+install.packages("ctsmr", repos = c(ctsmr = "http://ctsm.info/repo/dev", getOption("repos")), type="source")
+library(ctsmr)
 library(stringr)
 library(lubridate)
+# Install Parallel package
+install.packages("doParallel")
 library(foreach)
 library(doParallel)
 
-path_out = "fiftyshadesofgrey/data/out/"
-path_in = "fiftyshadesofgrey/data/in/"
+# Define in and output data paths
+path_out = paste(root_directory, "/data/out/", sep="")
+path_in = paste(root_directory, "/data/in/", sep="")
 
-## Set the working directory. Change this to the location of the example on the computer. Note that "/" is always used in R, also in Windows
-setwd("fiftyshadesofgrey/src/")
 
 # Source the scripts with functions in the "src" folder. Just a neat way of arranging helping functions in R
-sapply(dir("allmodels", full.names=TRUE), source)
-sapply(dir("utils", full.names=TRUE), source)
+source("allmodels.R")
+source("utils.R")
 
 # RC models and forward selection scheme declaration
 RC_models = list("Ti"=Ti, 
@@ -91,23 +100,14 @@ list_file_names <- list.files(pattern = "blg_*")
 # Save buildings with no converging model fit
 list_nofit <- c()
 
-
-### Parallel Looping over building input files
-n.cores <- parallel::detectCores() - 1
-#create the cluster
-cl <- parallel::makeCluster(
-  n.cores, 
-  type = "FORK", #FORK, PSOCK
-  outfile='log.txt'
-  )
-registerDoParallel(cl)
-
 # PARALLEL LOOP
-all_list_nofit <- foreach (file = list_file_names, 
-                           .combine=cbind) %dopar% {
-  # library(stringr)
-  # library(lubridate)
+for (file in list_file_names) {
 
+  # List with global parameters
+  prm <- list()
+  # Number of threads used by CTSM-R for the estimation computations
+  prm$threads <- 1
+  
   ### ---PREPROCESSING------------------------------------------------------------------------------------------------------
   ## Read the csv file
   df <- read.csv(paste(path_in,file,sep=""),sep=";",header=TRUE)
@@ -120,11 +120,6 @@ all_list_nofit <- foreach (file = list_file_names,
   df$timedate <- ymd_hms(df$t)
   ## df$t is now hours since start of the experiment.
   df$t <- seq(0, length(df$t)-1, by=1) / 4  # dt = 15 minutes
-  
-  # if (all(df$Th==0)){ # Testing boiler temperature data
-  #   print('Elec heater detected')
-  #   return(uuid_filtering)
-  # }
 
   # Define input X
   X <- df[c("t", "Ps", "Ta", "Thm", "yTi", "timedate")]
@@ -177,21 +172,30 @@ all_list_nofit <- foreach (file = list_file_names,
       RC_model_considered <- RC_models[[m]]
       
       # Looping over multiple initial values
-      for (i in (1:5)) { # i - intial parameter values loop
+      no_ini_fit <- TRUE
+      i <- 1
+      while (no_ini_fit) {
         # Parameter dictionary (list)
         input_param <- input_ini(X, inl, i)
-        ## ----executeTiTe,results="hide"------------------------------------------
+        ## ----Fit the considered model------------------------------------------
         try(fited_model <- RC_model_considered(X, input_param))
         # Results extraction - appending loglik_ite list with the current model's log-likelihood
         try(loglik_ite <- c(loglik_ite, fited_model$loglik))
         # Saving best current model - if its loglikelihood is the maximum observed yet
         try(
-          if (tail(loglik_ite, n=1) == max(loglik_ite)) { # max likelyhood test
+          if (fited_model$loglik == max(loglik_ite)) { # max likelyhood test
             fited_model$model_name <- m
             best_fit <- fited_model
             best_model_name <- m
             no_fit_condition <- FALSE
         })
+        # Break out of initial condition loop if one of them suceeds in fitting
+        try( if (!is.null(fited_model$loglik)) {no_ini_fit <- FALSE})
+        if (i < 5) {
+          i <- i + 1
+        } else {
+        no_ini_fit <- FALSE
+        }
       } # End of [ite][model][initial values] fitting loop
       
     } # End of [ite][model] fitting loop
@@ -200,13 +204,23 @@ all_list_nofit <- foreach (file = list_file_names,
     # Model did not converge
     if(no_fit_condition){
       while_condition <- FALSE
-      return(uuid_filtering)
+      list_nofit <- c(list_nofit, uuid_filtering)
     
     # Model did converge - 1st ite save
     } else if (ite == "0") {
       # Update the model list to loop over for next iteration
       ite <- best_model_name
+      # Save path information
       best_fit$best_path <- c(best_model_name)
+      # Calculate the one-step predictions of the state (i.e. the residuals)
+      tmp <- predict(best_fit)[[1]]
+      # Calculate the residuals and put them with the data in a data.frame X
+      X$residuals <- X$yTi - tmp$output$pred$yTi  
+      # nCPBES calculation
+      nCPBES <- nCPBE_calc(X$residuals)
+      nCPBES <- tail(nCPBES, n=1)
+      # Save nCPBES information
+      best_fit$nCPBES <- c(nCPBES)
       # Simply save the best model (max likelyhood selection)
       save(best_fit, file=paste(path_out,toString(uuid_filtering),'_fit.rda', sep="")) 
       
@@ -228,26 +242,37 @@ all_list_nofit <- foreach (file = list_file_names,
           # New model is significantly better than the last
           # Saving best model
           best_newpath <- c(best_fit$best_path, best_model_name)
+          # Saving best nCPBES
+          old_nCPBES <- best_fit$nCPBES
           best_fit <- best_fit_new  # changing the naming convention of the best_fit model
+          # Save path information
           best_fit$best_path <- best_newpath
+          # Calculate the one-step predictions of the state (i.e. the residuals)
+          tmp <- predict(best_fit)[[1]]
+          # Calculate the residuals and put them with the data in a data.frame X
+          X$residuals <- X$yTi - tmp$output$pred$yTi  
+          # nCPBES calculation
+          nCPBES <- nCPBE_calc(X$residuals)
+          nCPBES <- tail(nCPBES, n=1)
+          # Save nCPBES information
+          best_fit$nCPBES <- c(old_nCPBES, nCPBES)
           save(best_fit, file=paste(path_out,toString(uuid_filtering),'_fit.rda', sep=""))
           # Update the model list to loop over for next iteration
           ite <- best_model_name
+          if (ite == "TiTmTeThTsAeRia") {
+            # There is no more complex model to try
+            save(best_fit, file=paste(path_out,toString(uuid_filtering),'_fit.rda', sep=""))
+            while_condition <- FALSE}
         } else {
           # New model shows no significant improvement of the previous model
           # We can terminate the model iteration
           while_condition <- FALSE
-          return(NA)
         }
     }
     
     
   } # End of while loop
-  
-  list_nofit
 } # End of [uuid] loop
-
-stopCluster(cl)
 
 
 save(all_list_nofit, file=paste(path_out,'all_list_nofit.csv', sep=""))

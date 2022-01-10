@@ -3,26 +3,32 @@ library(stringr)
 library(lubridate)
 library(scales)
 
-path_in = "fiftyshadesofgrey/data/out/"
-path_out = "fiftyshadesofgrey/fig/"
+# Define paths
+root_directory = "C:/Users/20190285/Documents/GitHub/fiftyshadesofgrey"
+path_out = paste(root_directory, "/data/out/", sep="")
+path_in = paste(root_directory, "/data/in/", sep="")
 
 # Set the working directory. Change this to the location of the example on the computer. Note that "/" is always used in R, also in Windows
-setwd("fiftyshadesofgrey/src/")
+setwd(paste(root_directory, "/src", sep=""))
+# Source the scripts with functions in the "src" folder. Just a neat way of arranging helping functions in R
+source("allmodels.R")
+source("utils.R")
 
 # Load processed results
-df_res <- read.csv( paste(path_in,'all_greybox_fits.csv', sep=""))
-df_paths <- read.csv( paste(path_in,'all_greybox_paths.csv', sep=""))
+df_res <- read.csv( paste(path_out,'all_greybox_fits.csv', sep=""))
+df_paths <- read.csv( paste(path_out,'all_greybox_paths.csv', sep=""))
 
 
 # -------------------------------------------- Calculating CP, CPBE and nCPBES for model evaluation --------------------------------------------
+setwd(path_out)
 # Get all input files names
-list_file_names <- list.files(pattern = "*_finalfit.rda")
+list_file_names <- list.files(pattern = "*_fit.rda")
 
 # Initialize results lists
 x_list <- list()
 y_list <- list()
 CP_list<- list()
-BE_list <- list()
+CPBE_list <- list()
 nCPBES_list <- list()
 
 for (file in list_file_names) {
@@ -55,17 +61,15 @@ for (file in list_file_names) {
   ## Calculate the residuals and put them with the data in a data.frame X
   X$residuals <- X$yTi - tmp$output$pred$yTi
   X$yTiHat <- tmp$output$pred$yTi
-  ts <- X$residuals
   # Periodogram calculation
-  nCPBES, BE, CP, x, xm, crit <- nCPBE_calc(ts, all=TRUE)
+  env <- nCPBE_calc(X$residuals, all=TRUE)
   
   # Saving results to lists
-  x_list <- append (x_list, list(x))
-  CP_list <- append (CP_list, list(CP))
-  BE_list <- append (BE_list, list(BE))
-  nCPBES_list <- append (nCPBES_list, list(nCPBE))
-}
-
+  x_list <- append (x_list, list(env$x))
+  CP_list <- append (CP_list, list(env$CP))
+  CPBE_list <- append (CPBE_list, list(env$CPBE))
+  nCPBES_list <- append (nCPBES_list, list(env$nCPBES))
+  }
 
 
 
@@ -76,9 +80,10 @@ png(paste(path_out,'nCPBES_all.png', sep=""), width=1200, height=480, res=200)
 par(mfrow=c(1,3))
 
 # Colors initialization
-color_good <- alpha(rgb(0.6196078431372549, 0.00392156862745098, 0.25882352941176473), 0.08)
-color_ok <- alpha(rgb(0.998077662437524, 0.9992310649750096, 0.7460207612456747), 0.08)
-color_poor <- alpha(rgb(0.3686274509803922, 0.30980392156862746, 0.6352941176470588), 0.08)
+pal <- colorRampPalette(c("red", "blue"))
+color_good <- alpha(pal(3)[3], 0.3)
+color_ok <- alpha(pal(3)[2], 0.3)
+color_poor <- alpha(pal(3)[1], 0.3)
 
 ### Cumulated Periodogram Plot
 for (i in 1:length(list_file_names)) {
@@ -95,17 +100,17 @@ for (i in 1:length(list_file_names)) {
   }
   
   if (i == 1) {
-      fig <- plot(unlist(x_list[i], use.names=FALSE), unlist(CP_list[i], use.names=FALSE), type="s", xlim=c(0, xm),
+      fig <- plot(unlist(x_list[i], use.names=FALSE), unlist(CP_list[i], use.names=FALSE), type="s", xlim=c(0, env$xm),
                   ylim=c(0, 1), xaxs="i", yaxs="i", xlab="Frequency (2/h)",
                   ylab="", col=color)
   } else {
-     fig + lines(unlist(x_list[i], use.names=FALSE), unlist(CP_list[i], use.names=FALSE), type="s", xlim=c(0, xm),
+     fig + lines(unlist(x_list[i], use.names=FALSE), unlist(CP_list[i], use.names=FALSE), type="s", xlim=c(0, env$xm),
                  ylim=c(0, 1), xaxs="i", yaxs="i", xlab="Frequency (2/h)",
                  ylab="", col=color) 
   }
 }
-lines(c(0, xm*(1-crit)), c(crit, 1), col = "blue", lty = 2)
-lines(c(xm*crit, xm), c(0, 1-crit), col = "blue", lty = 2)
+lines(c(0, env$xm*(1-env$crit)), c(env$crit, 1), col = "blue", lty = 2)
+lines(c(env$xm*env$crit, env$xm), c(0, 1-env$crit), col = "blue", lty = 2)
 title(main = "Cumulated Periodogram")
 invisible()
 
@@ -123,11 +128,11 @@ for (i in 1:length(list_file_names)) {
     color <- color_poor
   }
   if (i == 1) {
-      fig <- plot(unlist(x_list[i], use.names=FALSE), unlist(BE_list[i], use.names=FALSE), type="s", xlim=c(0, xm),
+      fig <- plot(unlist(x_list[i], use.names=FALSE), unlist(CPBE_list[i], use.names=FALSE), type="s", xlim=c(0, env$xm),
                   ylim=c(0, 1), xaxs="i", yaxs="i", xlab="Frequency (2/h)",
                   ylab="", col=color)
   } else {
-     fig + lines(unlist(x_list[i], use.names=FALSE), unlist(BE_list[i], use.names=FALSE), type="s", xlim=c(0, xm),
+     fig + lines(unlist(x_list[i], use.names=FALSE), unlist(CPBE_list[i], use.names=FALSE), type="s", xlim=c(0, env$xm),
                  ylim=c(0, 1), xaxs="i", yaxs="i", xlab="Frequency (2/h)",
                  ylab="", col=color) 
   }
@@ -149,11 +154,11 @@ for (i in 1:length(list_file_names)) {
     color <- color_poor
   }
   if (i == 1) {
-      fig <- plot(unlist(x_list[i], use.names=FALSE), unlist(nCPBES_list[i], use.names=FALSE), type="s", xlim=c(0, xm),
+      fig <- plot(unlist(x_list[i], use.names=FALSE), unlist(nCPBES_list[i], use.names=FALSE), type="s", xlim=c(0, env$xm),
                   ylim=c(0, .1), xaxs="i", yaxs="i", xlab="Frequency (2/h)",
                   ylab="", col=color)
   } else {
-     fig + lines(unlist(x_list[i], use.names=FALSE), unlist(nCPBES_list[i], use.names=FALSE), type="s", xlim=c(0, xm),
+     fig + lines(unlist(x_list[i], use.names=FALSE), unlist(nCPBES_list[i], use.names=FALSE), type="s", xlim=c(0, env$xm),
                  ylim=c(0, .1), xaxs="i", yaxs="i", xlab="Frequency (2/h)",
                  ylab="", col=color) 
   }
@@ -167,5 +172,3 @@ text(x = 0.4, y = .005, "Good fits")
 title(main = "Cumulated nCPBES")
 invisible()
 dev.off()
-
-
