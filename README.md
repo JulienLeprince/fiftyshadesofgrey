@@ -42,7 +42,7 @@ Possible candidates for model improvement are selected from a set of predefined 
 The overall model selection scheme is presented below. Possible model combinations are mapped and linked, visually exposing the different existing paths of the forward selection procedure.
 
 <p align="center">
-  <img src="https://github.com/JulienLeprince/fiftyshadesofgrey/tree/main/fig/modelselection.png" alt="Model selection"/>
+  <img src="https://github.com/JulienLeprince/fiftyshadesofgrey/tree/main/fig/modelselection.png" width=20% height=20% alt="Model selection"/>
 </p>
 
 Grey-box models are here implemented using the computer software [CTSM-R](http://ctsm.info/) developed at the Technical University of Denmark. It produces maximum likelihood estimates of model parameters thanks to an optimization algorithm performed over a Kalman filter.
@@ -56,7 +56,7 @@ Typically, an appropriate model will produce residuals with Gaussian white-noise
 By calculating the frequency differences between a selected model's Cumulated Periodogram (CP) and its confidence interval, we obtain boundary excess values which, in turn, can be summed into a unique numerical indicator, i.e., the Cumulated Periodogram Boundary Excess Sum (CPBES). This indicator characterizes the amount of auto-correlation present in the considered time-series, which implies white noise properties when close to zero. CPBES consequently allows the differentiation of poor, suitable and good models resulting from the previous forward selection procedure. To allow fair comparisons of CPBES between times series of different length, we normalize it by its length, and obtain the normalized CPBES (nCPBES).
 
 <p align="center">
-  <img src="https://github.com/JulienLeprince/fiftyshadesofgrey/tree/main/fig/nCPBES_demo_final.png" alt="nCPBES Demo"/>
+  <img src="https://github.com/JulienLeprince/fiftyshadesofgrey/tree/main/fig/nCPBES_demo_final.png" width=50% height=50% alt="nCPBES Demo"/>
 </p>
 
 
