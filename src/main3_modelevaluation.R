@@ -5,6 +5,7 @@ library(scales)
 
 # Define paths
 root_directory = "C:/Users/20190285/Documents/GitHub/fiftyshadesofgrey"
+path_res = paste(root_directory, "/fig/", sep="")
 path_out = paste(root_directory, "/data/out/", sep="")
 path_in = paste(root_directory, "/data/in/", sep="")
 
@@ -76,7 +77,7 @@ for (file in list_file_names) {
 # --------------------- Plotting obtained Cumulated Periodogram, Boundary Excess and nCPBES ---------------------
 
 # Defining path and picture name for saving
-png(paste(path_out,'nCPBES_all.png', sep=""), width=1200, height=480, res=200)
+png(paste(path_res,'nCPBES_all.png', sep=""), width=1200, height=480, res=200)
 par(mfrow=c(1,3))
 
 # Colors initialization
