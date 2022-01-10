@@ -22,7 +22,7 @@ list_file_names <- list.files(pattern = "*_fit.rda")
 # Saving dataframe initialization
 R_coefs = c('Ria', 'Rie', 'Rea', 'Rih', 'Rim', 'Ris')
 # Saving dataframe initialization
-col_names <- c("uuid", "model_name", "HTC", "nCPBES", "iteration", "significance_prop",
+col_names <- c("uuid", "model_name", "HTC", "nCPBES", "iteration", "significance_prop", "residual_std", "residual_mean",
                "Ti0" , "Tm0" , "Te0" , "Th0" , "Ts0" ,
                 "Ci" , "Cm" , "Ce" , "Ch" , "Cs" , "Rie", "Rea", "Ria", "Rim", "Rih", "Ris", "Rh" ,
                 "Aw" , "Ae" ,
@@ -124,6 +124,24 @@ for (file in list_file_names){
   significance_prop <- sum(signifiance[!is.na(signifiance)]*1)/length(signifiance[!is.na(signifiance)])*100
   df_res[[counts, 6]] <- significance_prop
   
+  ## Residuals standard deviation & Mean values
+  # Loading data associated with results model
+  df <- read.csv(paste(path_in,"blg_",uuid_filtering,".csv",sep=""),sep=";",header=TRUE)
+  # Convert to datetime
+  df$timedate <- ymd_hms(df$t)
+  df$t <- seq(0, length(df$t)-1, by=1) / 4  # dt = 15 minutes
+  # Renaming Th to Thm
+  df$Thm <- df$Th
+  # Define input X
+  X <- df[c("t", "Ps", "Ta", "Thm", "yTi", "timedate")]
+  X = X[complete.cases(X), ]
+  # Calculate the one-step predictions of the state (i.e. the residuals)
+  tmp <- predict(best_fit)[[1]]
+  # Calculate the residuals and put them with the data in a data.frame X
+  X$residuals <- X$yTi - tmp$output$pred$yTi  
+  # Saving Residual standard deviation & Mean
+  df_res[[counts, 7]] <- sd(X$residuals)
+  df_res[[counts, 8]] <- mean(X$residuals)
 }
 
 # Save dataframe as csv file/ spark table
