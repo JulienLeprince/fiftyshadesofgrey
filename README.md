@@ -56,7 +56,7 @@ Typically, an appropriate model will produce residuals with Gaussian white-noise
 By calculating the frequency differences between a selected model's Cumulated Periodogram (CP) and its confidence interval, we obtain boundary excess values which, in turn, can be summed into a unique numerical indicator, i.e., the Cumulated Periodogram Boundary Excess Sum (CPBES). This indicator characterizes the amount of auto-correlation present in the considered time-series, which implies white noise properties when close to zero. CPBES consequently allows the differentiation of poor, suitable and good models resulting from the previous forward selection procedure. To allow fair comparisons of CPBES between times series of different length, we normalize it by its length, and obtain the normalized CPBES (nCPBES).
 
 <p align="center">
-  <img src="https://github.com/JulienLeprince/fiftyshadesofgrey/tree/main/fig/nCPBES_demo_final.png" width=50% height=50%>
+  <img src="https://github.com/JulienLeprince/fiftyshadesofgrey/tree/main/fig/nCPBES_demo_final.png">
 </p>
 
 
