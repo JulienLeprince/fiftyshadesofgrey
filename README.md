@@ -47,7 +47,7 @@ fiftyshadesofgrey
 This study considers grey-box models ranging from simple first order model *Ti*, where the inside temperature state-point *Ti* and its RC parameters *Ria* and *Ci* are solely treated, to 5th order ones, where the addition of sensor *Ts*, medium *Tm*, heater *Th* and building envelope *Te* state points along with their respective RC parameters each add a variety of model extensions to chose from. Additionally, the building envelope component proposes additional parameter extensions modeling direct inside to outside heat exchanges and facade solar gains, which are here considered as a block extension *AeRia*.
 The full model *TiTmTeThTsAeRia* is presented below (reprinted from the work of [Bacher and Madsen](https://www.sciencedirect.com/science/article/pii/S0378778811000491) with their approval)
 
-![models_applied](fig/TiTmTeThTsAeRia_RCmodel.pdf)
+![models_applied](fig/TiTmTeThTsAeRia_RCmodel.png)
 
 For a detailed description of the grey-box models, the enthuastic reader is suggested to refer to the work of [Bacher and Madsen](https://www.sciencedirect.com/science/article/pii/S0378778811000491).
 
