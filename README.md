@@ -40,7 +40,7 @@ fiftyshadesofgrey
 |   └─ [utility functions](https://github.com/JulienLeprince/fiftyshadesofgrey/blob/main/src/utils.R)            <- various utility functions
 └─ README.md              <- 50SoG README for developers using this code -->
 
-## Grey-box RC model selection
+## Automated building thermal dynamics model identification
 
 ### Applied models
 
