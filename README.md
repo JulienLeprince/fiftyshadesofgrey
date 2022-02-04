@@ -8,29 +8,49 @@ To get started, simply clone this repository on your computer or Fork it via Git
 
 ## Repository structure
 
-fiftyshadesofgrey\\
-└─ [data](https://github.com/JulienLeprince/fiftyshadesofgrey/tree/main/src/data)\\
-|   ├─ [in](https://github.com/JulienLeprince/fiftyshadesofgrey/tree/main/src/data/in)            <- input example data-sets of 3 buildings\\
-|   └─ [out](https://github.com/JulienLeprince/fiftyshadesofgrey/tree/main/src/data/out)            <- model fitting output results\\
-└─ [figures](https://github.com/JulienLeprince/fiftyshadesofgrey/tree/main/fig)                <- figures outputs\\
-└─ [src](https://github.com/JulienLeprince/fiftyshadesofgrey/tree/main/src)\\
-|   ├─ [0 exploratory analysis](https://github.com/JulienLeprince/fiftyshadesofgrey/blob/main/src/main0_VisualExploratoryAnalysis.Rmd)            <- visual exploratory analysis of input data\\
-|   ├─ [1a model selection](https://github.com/JulienLeprince/fiftyshadesofgrey/blob/main/src/main1_modelselection_inseriesloop.R)            <- RC model selection in series\\
-|   ├─ [1b model selection](https://github.com/JulienLeprince/fiftyshadesofgrey/blob/main/src/main1_modelselection_parallelloop.R)            <- RC model selection in parallel\\
-|   ├─ [2 results processing](https://github.com/JulienLeprince/fiftyshadesofgrey/blob/main/src/main2_resultsprocessing.R)            <- selected model postprocessing\\
-|   ├─ [3 model evaluation](https://github.com/JulienLeprince/fiftyshadesofgrey/blob/main/src/main3_modelevaluation.R)            <- model fit quality evaluation\\
-|   ├─ [4 results plots](https://github.com/JulienLeprince/fiftyshadesofgrey/blob/main/src/results_plots.ipynb)            <- visualizing results\\
-|   ├─ [RC models](https://github.com/JulienLeprince/fiftyshadesofgrey/blob/main/src/allmodels.R)            <- all building thermal RC models\\
-|   └─ [utility functions](https://github.com/JulienLeprince/fiftyshadesofgrey/blob/main/src/utils.R)            <- various utility functions\\
+fiftyshadesofgrey
+
+└─ [data](https://github.com/JulienLeprince/fiftyshadesofgrey/tree/main/src/data)
+
+|   ├─ [in](https://github.com/JulienLeprince/fiftyshadesofgrey/tree/main/src/data/in)            <- input example data-sets of 3 buildings
+
+|   └─ [out](https://github.com/JulienLeprince/fiftyshadesofgrey/tree/main/src/data/out)            <- model fitting output results
+
+└─ [figures](https://github.com/JulienLeprince/fiftyshadesofgrey/tree/main/fig)                <- figures outputs
+
+└─ [src](https://github.com/JulienLeprince/fiftyshadesofgrey/tree/main/src)
+
+|   ├─ [0 exploratory analysis](https://github.com/JulienLeprince/fiftyshadesofgrey/blob/main/src/main0_VisualExploratoryAnalysis.Rmd)            <- visual exploratory analysis of input data
+
+|   ├─ [1a model selection](https://github.com/JulienLeprince/fiftyshadesofgrey/blob/main/src/main1_modelselection_inseriesloop.R)            <- RC model selection in series
+
+|   ├─ [1b model selection](https://github.com/JulienLeprince/fiftyshadesofgrey/blob/main/src/main1_modelselection_parallelloop.R)            <- RC model selection in parallel
+
+|   ├─ [2 results processing](https://github.com/JulienLeprince/fiftyshadesofgrey/blob/main/src/main2_resultsprocessing.R)            <- selected model postprocessing
+
+|   ├─ [3 model evaluation](https://github.com/JulienLeprince/fiftyshadesofgrey/blob/main/src/main3_modelevaluation.R)            <- model fit quality evaluation
+
+|   ├─ [4 results plots](https://github.com/JulienLeprince/fiftyshadesofgrey/blob/main/src/results_plots.ipynb)            <- visualizing results
+
+|   ├─ [RC models](https://github.com/JulienLeprince/fiftyshadesofgrey/blob/main/src/allmodels.R)            <- all building thermal RC models
+
+|   └─ [utility functions](https://github.com/JulienLeprince/fiftyshadesofgrey/blob/main/src/utils.R)            <- various utility functions
+
 └─ README.md              <- 50SoG README for developers using this code
 
 
 ## Grey-box RC model selection
 
-### Model selection
+### Applied models
 
 This study considers grey-box models ranging from simple first order model *Ti*, where the inside temperature state-point *Ti* and its RC parameters *Ria* and *Ci* are solely treated, to 5th order ones, where the addition of sensor *Ts*, medium *Tm*, heater *Th* and building envelope *Te* state points along with their respective RC parameters each add a variety of model extensions to chose from. Additionally, the building envelope component proposes additional parameter extensions modeling direct inside to outside heat exchanges and facade solar gains, which are here considered as a block extension *AeRia*.
+The full model *TiTmTeThTsAeRia* is presented below (reprinted from the work of [Bacher and Madsen](https://www.sciencedirect.com/science/article/pii/S0378778811000491) with their approval)
+
+![models_applied](fig/TiTmTeThTsAeRia_RCmodel.pdf)
+
 For a detailed description of the grey-box models, the reader is suggested to refer to the work of [Bacher and Madsen](https://www.sciencedirect.com/science/article/pii/S0378778811000491).
+
+### Model selection
 
 The model selection procedure employs a likelihood ratio test to statistically determine whether a more complex model performs significantly better, or not, compared to a simpler, sub-model.
 A forward selection procedure is proposed beginning with the simplest feasible model, $T_i$, and extending it iteratively with the component presenting the most significant improvement. The procedure terminates when no model extension yields a p-value below the pre-specified limit, commonly fixed at 5\%.
