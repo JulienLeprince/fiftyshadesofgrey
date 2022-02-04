@@ -1,0 +1,143 @@
+# Visual Exploratory Analysis of input data
+
+This notebook allows the visual exploration of our input timeseries.
+We start by importing libraries and defining paths
+
+```{r}
+## Init by deleting all variables and functions
+rm(list=ls())
+library(stringr)
+library(lubridate)
+library(knitr)
+
+## Set the working directory. Change this to the location of the root file on the computer. Note that "/" is always used in R, also in Windows
+root_directory = "C:/.../fiftyshadesofgrey"
+path_out = paste(root_directory, "/data/out/", sep="")
+path_in = paste(root_directory, "/data/in/", sep="")
+
+setwd(paste(root_directory, "/src", sep=""))
+
+# Get all input files names
+setwd(path_in)
+list_file_names <- list.files(pattern = "blg_*")
+```
+
+
+## Utility functions
+
+Here a few utility functions have been defined for plotting.
+Reference source: the ctsmr.info website http://ctsm.info/building1.zip
+
+
+```{r}
+setpar <- function(tmpl=NA,...)
+{
+  ## Get par list
+  p <- par(no.readonly=TRUE)
+  ## Templates
+  if(!is.na(tmpl))
+  {
+    if(tmpl=="ts")
+    {
+      par(mfrow=c(3,1),
+          oma = c(3,0,2,2),
+          mar = c(0,4,0.5,0),
+          xaxt = "n",
+          mgp = c(2.2,0.4,0),
+          tcl = -0.4
+      )
+    }
+    if(tmpl=="pdf")
+    {
+      par(mar = c(4,4,1,1),
+          mgp = c(2.2,0.7,0),
+          tcl = -0.4
+      )
+    }
+  }
+  ## Replace all the parameters given in prm
+  ## Get only the ... parameters
+  i <- which(!names(match.call()) %in% names(match.call(expand.dots=FALSE)))
+  if(length(i)>0)
+  {
+    par(...)
+  }
+  invisible(p)
+}
+
+asP <- function(timeVal, tz="GMT", ...)
+{
+  ## For easy conversion from string or seconds since 1970-01-01 to POSIXct
+  switch(class(timeVal[1])[1],
+         character=as.POSIXct(timeVal,tz=tz, ...),
+         POSIXct=timeVal,
+         POSIXlt=timeVal,
+         ISOdate(1970,1,1,0)+timeVal
+  )
+}
+
+asPlt <- function(timeVal, tz="GMT", ...)
+{
+  ## For easy conversion from string or seconds since 1970-01-01 to POSIXlt
+  switch(class(timeVal[1])[1],
+         character=as.POSIXlt(timeVal,tz=tz, ...),
+         POSIXct=as.POSIXlt(timeVal),
+         POSIXlt=timeVal,
+         as.POSIXlt(ISOdate(1970,1,1,0)+timeVal)
+  )
+}
+
+per <- function(tstart,time,tend)
+{
+  asP(tstart) < time & time <= asP(tend)
+}
+```
+
+## Visual plot loop
+
+Finaly, we loop over the input files to produce visualizations of our measurement data.
+
+```{r}
+### CHOSE FILE
+for (file in list_file_names) {
+  df <- read.csv(paste(path_in,file,sep=""),sep=";",header=TRUE)
+  # Get blg uuid from file name
+  split_file_name <- str_split_fixed(file, "_", 2)
+  uuid_filtering <- sapply(split_file_name, tail, 1)[[2]]
+  uuid_filtering <- str_split_fixed(uuid_filtering, ".csv", 2)[1]
+  # Convert to datetime
+  df$timedate <- ymd_hms(df$t)
+  ## df$t is now hours since start of the experiment.
+  df$t <- seq(0, length(df$t)-1, by=1) / 4  # dt = 15 minutes
+  
+  # Define input X
+  X <- df[c("t", "timedate", "Ps", "Ta", "Thm", "yTi", "timedate")]
+  # Removing NA values
+  X = X[complete.cases(X), ]
+  
+  
+  start_date <- as.Date(X$timedate[1], format='%a %b %d %H:%M:%S UTC %Y')
+  
+  ## ----plotData, fig.height=6----------------------------------------------
+  ## Plot the time series (see "functions/setpar.R" to see the plot setup function)
+  setpar("ts", mfrow=c(4,1))
+  gridSeq <- seq(asP(toString(start_date)),by="days",len=length(X$t)/4/24)
+  ## 
+  plot(X$timedate,X$yTi,type="n",xlab="",ylab="yTi")
+  abline(v=gridSeq,h=0,col="grey85",lty=3)
+  lines(X$timedate,X$yTi)
+  ## 
+  plot(X$timedate,X$Ta,type="n",xlab="",ylab="Ta")
+  abline(v=gridSeq,h=0,col="grey85",lty=3)
+  lines(X$timedate,X$Ta)
+  ## 
+  plot(X$timedate,X$Thm,type="n",xlab="",ylab="Thm")
+  abline(v=gridSeq,h=0,col="grey85",lty=3)
+  lines(X$timedate,X$Thm)
+  ##
+  plot(X$timedate,X$Ps,type="n",xlab="",ylab="Ps")
+  abline(v=gridSeq,h=0,col="grey85",lty=3)
+  lines(X$timedate,X$Ps)
+  axis.POSIXct(1, X$timedate, xaxt="s", format="%Y-%m-%d")
+}
+```

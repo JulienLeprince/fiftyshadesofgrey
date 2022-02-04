@@ -4,7 +4,7 @@ library(lubridate)
 library(scales)
 
 # Define paths
-root_directory = "C:/Users/20190285/Documents/GitHub/fiftyshadesofgrey"
+root_directory = "C:/.../fiftyshadesofgrey"
 path_res = paste(root_directory, "/fig/", sep="")
 path_out = paste(root_directory, "/data/out/", sep="")
 path_in = paste(root_directory, "/data/in/", sep="")

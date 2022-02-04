@@ -2,7 +2,7 @@ library(knitr)
 ## Init by deleting all variables and functions
 rm(list=ls())
 ## Set the working directory. Change this to the location of the root file on the computer. Note that "/" is always used in R, also in Windows
-root_directory = "C:/Users/20190285/Documents/GitHub/fiftyshadesofgrey"
+root_directory = "C:/.../fiftyshadesofgrey"
 setwd(paste(root_directory, "/src", sep=""))
 # Install CSTM-R
 install.packages("ctsmr", repos = c(ctsmr = "http://ctsm.info/repo/dev", getOption("repos")), type="source")
@@ -17,6 +17,7 @@ library(doParallel)
 # Define in and output data paths
 path_out = paste(root_directory, "/data/out/", sep="")
 path_in = paste(root_directory, "/data/in/", sep="")
+
 
 # Source the scripts with functions in the "src" folder. Just a neat way of arranging helping functions in R
 source("allmodels.R")
@@ -99,29 +100,13 @@ list_file_names <- list.files(pattern = "blg_*")
 # Save buildings with no converging model fit
 list_nofit <- c()
 
-# List with global parameters
-prm <- list()
-# Number of threads used by CTSM-R for the estimation computations
-prm$threads <- 1
-
-### Parallel Looping over building input files
-n.cores <- parallel::detectCores() - 1
-#create the cluster
-cl <- parallel::makeCluster(
-  n.cores, 
-  type = "PSOCK", #FORK (highly efficient - the main environment doesn't have to be copied - only available on UNIX), PSOCK (environment of the director needs to be copied - available for both UNIX and WINDOWS systems)
-  outfile='log.txt'
-  )
-registerDoParallel(cl)
-
-# Export environment variables to cluster (only necessary with PSOCK cluster) - https://www.r-bloggers.com/2015/02/how-to-go-parallel-in-r-basics-tips/
-clusterExport(cl, c("prm", "RC_models", "RC_iterations", "inl"))
-
 # PARALLEL LOOP
-all_list_nofit <- foreach (file = list_file_names,
-                           .combine=cbind,
-                           .packages = c("ctsmr", "stringr", "lubridate", "zoo", "knitr")) %dopar% {
+for (file in list_file_names) {
 
+  # List with global parameters
+  prm <- list()
+  # Number of threads used by CTSM-R for the estimation computations
+  prm$threads <- 1
   
   ### ---PREPROCESSING------------------------------------------------------------------------------------------------------
   ## Read the csv file
@@ -133,7 +118,7 @@ all_list_nofit <- foreach (file = list_file_names,
 
   # Convert to datetime
   df$timedate <- ymd_hms(df$t)
-  ## df$t is now hours since start of the experiment.
+  ## df$t is now defined as nuber of hours since the start of the experiment.
   df$t <- seq(0, length(df$t)-1, by=1) / 4  # dt = 15 minutes
 
   # Define input X
@@ -209,7 +194,7 @@ all_list_nofit <- foreach (file = list_file_names,
         if (i < 5) {
           i <- i + 1
         } else {
-          no_ini_fit <- FALSE
+        no_ini_fit <- FALSE
         }
       } # End of [ite][model][initial values] fitting loop
       
@@ -219,12 +204,13 @@ all_list_nofit <- foreach (file = list_file_names,
     # Model did not converge
     if(no_fit_condition){
       while_condition <- FALSE
-      return(uuid_filtering)
+      list_nofit <- c(list_nofit, uuid_filtering)
     
     # Model did converge - 1st ite save
     } else if (ite == "0") {
       # Update the model list to loop over for next iteration
       ite <- best_model_name
+      # Save path information
       best_fit$best_path <- c(best_model_name)
       # Calculate the one-step predictions of the state (i.e. the residuals)
       tmp <- predict(best_fit)[[1]]
@@ -281,17 +267,12 @@ all_list_nofit <- foreach (file = list_file_names,
           # New model shows no significant improvement of the previous model
           # We can terminate the model iteration
           while_condition <- FALSE
-          return(NA)
         }
     }
     
     
   } # End of while loop
-  
-  list_nofit
 } # End of [uuid] loop
-
-stopCluster(cl)
 
 
 save(all_list_nofit, file=paste(path_out,'all_list_nofit.csv', sep=""))
