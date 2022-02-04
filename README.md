@@ -2,7 +2,7 @@
 
 This repository presents the implementation section of the open-access journal article [Fifty shades of grey: Automated stochastic model identification of building heat dynamics](https://doi.org/10.1016/j.enbuild.2021.111195) examplified on a toy-set of 3 anonymized buildings.
 
-If you find this code useful, please cite it using our reference journal article.
+If you find this code useful and use it in your work, please cite our above referenced journal article [Fifty shades of grey](https://doi.org/10.1016/j.enbuild.2021.111195).
 
 To get started, simply clone this repository on your computer or Fork it via GitHub. After installing dependencies from  the `requirements.txt` file, the code should run properly.
 
