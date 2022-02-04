@@ -7,37 +7,23 @@ If you find this code useful, please cite it using our reference journal article
 To get started, simply clone this repository on your computer or Fork it via GitHub. After installing dependencies from  the `requirements.txt` file, the code should run properly.
 
 ## Repository structure
-
+```
 fiftyshadesofgrey
-
 └─ [data](https://github.com/JulienLeprince/fiftyshadesofgrey/tree/main/src/data)
-
 |   ├─ [in](https://github.com/JulienLeprince/fiftyshadesofgrey/tree/main/src/data/in)            <- input example data-sets of 3 buildings
-
 |   └─ [out](https://github.com/JulienLeprince/fiftyshadesofgrey/tree/main/src/data/out)            <- model fitting output results
-
 └─ [figures](https://github.com/JulienLeprince/fiftyshadesofgrey/tree/main/fig)                <- figures outputs
-
 └─ [src](https://github.com/JulienLeprince/fiftyshadesofgrey/tree/main/src)
-
 |   ├─ [0 exploratory analysis](https://github.com/JulienLeprince/fiftyshadesofgrey/blob/main/src/main0_VisualExploratoryAnalysis.Rmd)            <- visual exploratory analysis of input data
-
 |   ├─ [1a model selection](https://github.com/JulienLeprince/fiftyshadesofgrey/blob/main/src/main1_modelselection_inseriesloop.R)            <- RC model selection in series
-
 |   ├─ [1b model selection](https://github.com/JulienLeprince/fiftyshadesofgrey/blob/main/src/main1_modelselection_parallelloop.R)            <- RC model selection in parallel
-
 |   ├─ [2 results processing](https://github.com/JulienLeprince/fiftyshadesofgrey/blob/main/src/main2_resultsprocessing.R)            <- selected model postprocessing
-
 |   ├─ [3 model evaluation](https://github.com/JulienLeprince/fiftyshadesofgrey/blob/main/src/main3_modelevaluation.R)            <- model fit quality evaluation
-
 |   ├─ [4 results plots](https://github.com/JulienLeprince/fiftyshadesofgrey/blob/main/src/results_plots.ipynb)            <- visualizing results
-
 |   ├─ [RC models](https://github.com/JulienLeprince/fiftyshadesofgrey/blob/main/src/allmodels.R)            <- all building thermal RC models
-
 |   └─ [utility functions](https://github.com/JulienLeprince/fiftyshadesofgrey/blob/main/src/utils.R)            <- various utility functions
-
 └─ README.md              <- 50SoG README for developers using this code
-
+```
 
 ## Grey-box RC model selection
 
@@ -48,7 +34,7 @@ The full model *TiTmTeThTsAeRia* is presented below (reprinted from the work of 
 
 ![models_applied](fig/TiTmTeThTsAeRia_RCmodel.pdf)
 
-For a detailed description of the grey-box models, the reader is suggested to refer to the work of [Bacher and Madsen](https://www.sciencedirect.com/science/article/pii/S0378778811000491).
+For a detailed description of the grey-box models, the enthuastic reader is suggested to refer to the work of [Bacher and Madsen](https://www.sciencedirect.com/science/article/pii/S0378778811000491).
 
 ### Model selection
 
