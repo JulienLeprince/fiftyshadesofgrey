@@ -9,6 +9,22 @@ To get started, simply clone this repository on your computer or Fork it via Git
 ## Repository structure
 ```
 fiftyshadesofgrey
+└─ data
+|   ├─ in                               <- input example data-sets of 3 buildings
+|   └─ out                              <- model fitting output results
+└─ figures                              <- figures outputs
+└─ src
+|   ├─ 0 exploratory analysis           <- visual exploratory analysis of input data
+|   ├─ 1a model selection               <- RC model selection in series
+|   ├─ 1b model selection               <- RC model selection in parallel
+|   ├─ 2 results processing             <- selected model postprocessing
+|   ├─ 3 model evaluation               <- model fit quality evaluation
+|   ├─ 4 results plots                  <- visualizing results
+|   ├─ RC models                        <- all building thermal RC models
+|   └─ utility functions                <- various utility functions
+└─ README.md                            <- README for developers using this code
+```
+<!-- fiftyshadesofgrey
 └─ [data](https://github.com/JulienLeprince/fiftyshadesofgrey/tree/main/src/data)
 |   ├─ [in](https://github.com/JulienLeprince/fiftyshadesofgrey/tree/main/src/data/in)            <- input example data-sets of 3 buildings
 |   └─ [out](https://github.com/JulienLeprince/fiftyshadesofgrey/tree/main/src/data/out)            <- model fitting output results
@@ -22,8 +38,7 @@ fiftyshadesofgrey
 |   ├─ [4 results plots](https://github.com/JulienLeprince/fiftyshadesofgrey/blob/main/src/results_plots.ipynb)            <- visualizing results
 |   ├─ [RC models](https://github.com/JulienLeprince/fiftyshadesofgrey/blob/main/src/allmodels.R)            <- all building thermal RC models
 |   └─ [utility functions](https://github.com/JulienLeprince/fiftyshadesofgrey/blob/main/src/utils.R)            <- various utility functions
-└─ README.md              <- 50SoG README for developers using this code
-```
+└─ README.md              <- 50SoG README for developers using this code -->
 
 ## Grey-box RC model selection
 
