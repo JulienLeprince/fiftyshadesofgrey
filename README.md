@@ -54,7 +54,7 @@ For a detailed description of the grey-box models, the enthuastic reader is sugg
 ### Model selection
 
 The model selection procedure employs a likelihood ratio test to statistically determine whether a more complex model performs significantly better, or not, compared to a simpler, sub-model.
-A forward selection procedure is proposed beginning with the simplest feasible model, $T_i$, and extending it iteratively with the component presenting the most significant improvement. The procedure terminates when no model extension yields a p-value below the pre-specified limit, commonly fixed at 5\%.
+A forward selection procedure is proposed beginning with the simplest feasible model, *Ti*, and extending it iteratively with the component presenting the most significant improvement. The procedure terminates when no model extension yields a p-value below the pre-specified limit, commonly fixed at 5\%.
 Possible candidates for model improvement are selected from a set of predefined extensions, resulting from the combination possibilities of the different considered model components, i.e., *Te*, *Th*, *Tm*, *Ts*, *AeRia*. 
 The overall model selection scheme is presented below. Possible model combinations are mapped and linked, visually exposing the different existing paths of the forward selection procedure.
 
