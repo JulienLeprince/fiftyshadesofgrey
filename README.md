@@ -4,10 +4,10 @@ This repository presents the implementation section of the open-access journal a
 
 To get started, simply clone this repository on your computer or Fork it via GitHub. After installing dependencies from  the `requirements.txt` file, the code should run properly.
 
+### Citation
 If you find this code useful and use it in your work, please reference our journal article:
-* [Fifty shades of grey: Automated stochastic model identification of building heat dynamics](https://doi.org/10.1016/j.enbuild.2022.112095)
 
-Leprince, J., Madsen, H., Miller, C., Real, J.P., Basu, K. and Zeiler, W., 2022. Fifty shades of grey: Automated stochastic model identification of building heat dynamics. Energy and Buildings, p.112095.
+[Leprince, J., Madsen, H., Miller, C., Real, J.P., Basu, K. and Zeiler, W., 2022. Fifty shades of grey: Automated stochastic model identification of building heat dynamics. Energy and Buildings, p.112095.](https://doi.org/10.1016/j.enbuild.2022.112095)
 
 ```
 
