@@ -33,7 +33,7 @@ fiftyshadesofgrey
 └─ data
 |   ├─ in                               <- input example data-sets of 3 buildings
 |   └─ out                              <- model fitting output results
-└─ figures                              <- figures outputs
+└─ fig                                  <- figures outputs
 └─ src
 |   ├─ 0 exploratory analysis           <- visual exploratory analysis of input data
 |   ├─ 1a model selection               <- RC model selection in series
