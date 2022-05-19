@@ -16,8 +16,8 @@ source("allmodels.R")
 source("utils.R")
 
 # Load processed results
-df_res <- read.csv( paste(path_out,'all_greybox_fits.csv', sep=""))
-df_paths <- read.csv( paste(path_out,'all_greybox_paths.csv', sep=""))
+df_res <- read.csv( paste(path_out,'all_greybox_model_fits.csv', sep=""))
+df_paths <- read.csv( paste(path_out,'all_greybox_model_paths.csv', sep=""))
 
 
 # -------------------------------------------- Calculating CP, CPBE and nCPBES for model evaluation --------------------------------------------

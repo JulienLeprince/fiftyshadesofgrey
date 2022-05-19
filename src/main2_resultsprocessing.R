@@ -145,7 +145,7 @@ for (file in list_file_names){
 }
 
 # Save dataframe as csv file/ spark table
-write.csv(df_res, paste(path_out,'all_final_fits.csv', sep=""), row.names = TRUE)
-write.csv(df_paths, paste(path_out,'all_model_paths.csv', sep=""), row.names = TRUE)
+write.csv(df_res, paste(path_out,'all_greybox_model_fits.csv', sep=""), row.names = TRUE)
+write.csv(df_paths, paste(path_out,'all_greybox_model_paths.csv', sep=""), row.names = TRUE)
 write.csv(df_nCPBES, paste(path_out,'all_nCPBES.csv', sep=""), row.names = TRUE)
 #write.csv(list_badoutputs, paste(path_out,'list_badoutputs.csv', sep=""))
